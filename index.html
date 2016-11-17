@@ -12,6 +12,13 @@
   <div class="slider round"></div>
 </label>
 
+
+<label class="switch3">
+  <input type="checkbox" onclick="changeStateBoundaries(this)">
+  <div class="slider round"></div>
+</label>
+
+
 <style>
 
 svg {
@@ -43,6 +50,12 @@ svg {
   stroke-opacity: .3;
 } 
 
+.state-border {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .3;
+}
+
 h1 {
     font:sans-serif;
 }
@@ -71,6 +84,17 @@ body {
   width: 60px;
   height: 34px;
   top: 150px;
+  left: 100px;
+  right: 100px;
+  bottom: 100px;
+}
+
+.switch3 {
+  position: absolute;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  top: 200px;
   left: 100px;
   right: 100px;
   bottom: 100px;
@@ -138,6 +162,8 @@ input:checked + .slider:before {
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script src="//d3js.org/topojson.v1.min.js"></script>
 <script>
+    
+//reference: https://bl.ocks.org/mbostock/5562380
 
 var width = 960,
     height = 1100;
@@ -149,7 +175,7 @@ var projection = d3.geo.albers()    //shift map to be visible on page
     .rotate([99.9018, 0])   //center longitude of tx
     .parallels([50, 60])
     .scale(3000)
-    .translate([width / 2 + 190, height / 2 - 100]);
+    .translate([width / 2 + 150, height / 2 - 150]);
     
 var path = d3.geo.path()
     .projection(projection);    //call the projection
@@ -183,6 +209,15 @@ function changeBoundaries() {   //show tract boundaries when second button is pr
     switchTwoPressed = !switchTwoPressed;
     test();
 }
+    
+var switchThreePressed = false;
+    
+function changeStateBoundaries() {   //show state boundaries when third button is pressed
+    switchThreePressed = !switchThreePressed;
+    test();
+}
+    
+
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -245,6 +280,14 @@ function test() {
         .attr("y", 65)
         .text("Add Tract Boundaries");
     
+    g.call(xAxis).append("text")    //text for button 3
+        //.attr("class", "caption")
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold")
+        .attr("x",-280)
+        .attr("y", 115)
+        .text("Add State Boundaries");
+    
     d3.json("tx.json", function(error, ca) {
       if (error) throw error;
 
@@ -268,6 +311,8 @@ function test() {
         .enter().append("path")
           .style("fill", function(d) { return d.key; })
           .attr("d", function(d) { return path({type: "FeatureCollection", features: d.values}); });
+        
+    //reference: https://bost.ocks.org/mike/map/
 
       // Draw county borders.
       svg.append("path")
@@ -275,10 +320,19 @@ function test() {
           .attr("class", "county-border")
           .attr("d", path);
         
+        //draw tract borders
         if (switchTwoPressed) {
             svg.append("path")
                   .datum(topojson.mesh(ca, ca.objects.tracts, function(a, b) { return a !== b; }))
                   .attr("class", "tract-border")
+                  .attr("d", path);
+        }
+        
+        //draw state borders
+        if (switchThreePressed) {
+            svg.append("path")
+                  .datum(topojson.mesh(ca, ca.objects.counties, function(a, b) { return a === b; }))
+                  .attr("class", "state-border")
                   .attr("d", path);
         }
     });
@@ -296,3 +350,9 @@ d3.select(self.frameElement).style("height", height + "px");
 <h4>CMPS 165: Data programming for Visualization</h4>
 
 <h4>Fall 2016</h4>
+
+<h4><a href = https://github.com/justincheon>Link for Github</a></h4>
+
+<h4><a href = https://justincheon.github.io/Texas-Population-Density-2016>Link for Visualization</a></h4>
+
+<h4>Collaborated with Mai Linh Ngo on this assignment.</h4>
